@@ -1,0 +1,11 @@
+name: netcupDnsUpdater
+services:
+    deno:
+        stdin_open: true
+        tty: true
+        ports:
+            - 3000:3000
+        volumes:
+            - netcupDnsUpdater_data:/app
+        image: denoland/deno:latest
+        command: run --allow-net /app/main.ts
