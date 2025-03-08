@@ -9,3 +9,5 @@ services:
             - netcupDnsUpdater_data:/app
         image: denoland/deno:latest
         command: run --allow-net /app/main.ts
+volumes:
+  netcupDnsUpdater_data:
