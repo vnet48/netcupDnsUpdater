@@ -27,7 +27,10 @@ function handler(req: Request, info: Deno.ServeHandlerInfo) { // { hostname: "lo
     const newIp = url.searchParams.get("ip") || "";
     const domain = url.searchParams.get("domain") || "";
 
+    console.log(`New IP: ${newIp}, Domain: ${domain}`);
+
     if (newIp === "" || domain === "") {
+      console.log("Missing IP or domain");
       return new Response("Missing IP or domain", {
         status: STATUS_CODE.BadRequest,
         statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
@@ -43,6 +46,8 @@ function handler(req: Request, info: Deno.ServeHandlerInfo) { // { hostname: "lo
         newIp,
       )
     ) {
+      console.log(`Failed to update ${domain} to ${newIp}`);
+
       return new Response("Failed to update DNS", {
         status: STATUS_CODE.InternalServerError,
         statusText: STATUS_TEXT[STATUS_CODE.InternalServerError],
