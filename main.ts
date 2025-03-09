@@ -11,7 +11,9 @@ const allowedIp = Deno.env.get("ALLOWED_IP") || "";
 
 function handler(req: Request, info: Deno.ServeHandlerInfo) { // { hostname: "localhost", port: 8080 }
   const url = new URL(req.url);
-  const { hostname } = getRemoteAddress(info);
+  const { hostname, port } = getRemoteAddress(info);
+
+  console.log(`Request from ${hostname}:${port} to ${url.pathname}`);
 
   if (hostname !== allowedIp) {
     return new Response("Not allowed", {
