@@ -8,3 +8,10 @@ services:
     tty: true
     ports:
       - 3000:3000
+    environment:
+      - NETCUP_API_KEY=${NETCUP_API_KEY}
+      - NETCUP_API_PASSWORD=${NETCUP_API_PASSWORD}
+      - NETCUP_CUSTOMER_NUMBER=${NETCUP_CUSTOMER_NUMBER}
+      - DOMAIN=${DOMAIN}
+      - HOST=${HOST}
+      - ALLOWED_IP=${ALLOWED_IP}
