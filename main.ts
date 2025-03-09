@@ -9,6 +9,13 @@ const port = parseInt(Deno.env.get("PORT") || "3000");
 const hostname = Deno.env.get("HOSTNAME") || "0.0.0.0";
 const allowedIp = Deno.env.get("ALLOWED_IP") || "";
 
+console.log(`netcup_api_key: ${netcup_api_key}`);
+console.log(`netcup_api_password: ${netcup_api_password}`);
+console.log(`netcup_customernumber: ${netcup_customernumber}`);
+console.log(`port: ${port}`);
+console.log(`hostname: ${hostname}`);
+console.log(`allowedIp: ${allowedIp}`);
+
 function handler(req: Request, info: Deno.ServeHandlerInfo) { // { hostname: "localhost", port: 8080 }
   const url = new URL(req.url);
   const { hostname, port } = getRemoteAddress(info);
