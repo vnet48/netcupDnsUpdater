@@ -16,6 +16,8 @@ function handler(req: Request, info: Deno.ServeHandlerInfo) { // { hostname: "lo
   console.log(`Request from ${hostname}:${port} to ${url.pathname}`);
 
   if (hostname !== allowedIp) {
+    console.log(`Not allowed IP: ${hostname}`);
+
     return new Response("Not allowed", {
       status: STATUS_CODE.Forbidden,
       statusText: STATUS_TEXT[STATUS_CODE.Forbidden],
