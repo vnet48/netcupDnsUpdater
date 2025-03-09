@@ -7,6 +7,11 @@ await configure({
   sinks: { console: getConsoleSink() },
   loggers: [
     {
+      category: ["logtape", "meta"],
+      lowestLevel: "warning",
+      sinks: ["console"],
+    },
+    {
       category: "netcup-dns-updater",
       lowestLevel: "debug",
       sinks: ["console"],
