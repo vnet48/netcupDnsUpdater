@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@logtape/logtape@0.9": "0.9.0",
     "jsr:@std/cli@^1.0.12": "1.0.14",
     "jsr:@std/dotenv@~0.225.3": "0.225.3",
     "jsr:@std/encoding@^1.0.7": "1.0.7",
@@ -13,6 +14,9 @@
     "jsr:@std/streams@^1.0.9": "1.0.9"
   },
   "jsr": {
+    "@logtape/logtape@0.9.0": {
+      "integrity": "aacdeb0e040e5723021bef8b9b8c03ad7cffb5e2146a0024c30814930f6e7c89"
+    },
     "@std/cli@1.0.14": {
       "integrity": "b09ee9921cd476c0e08185ed2bfce682d45ecf4654f26c31b4aa244a2c5c024e"
     },
@@ -56,6 +60,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@logtape/logtape@0.9",
       "jsr:@std/dotenv@~0.225.3",
       "jsr:@std/http@^1.0.13"
     ]
