@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
+    restart: unless-stopped
     ports:
       - 3000:3000
     environment:
