@@ -10,6 +10,7 @@ migration: `deno.json`/`deno.lock` are gone, `Deno.*` APIs are replaced by
 ```bash
 bun run dev      # bun --watch run main.ts
 bun run start    # bun run main.ts
+bun run build:sfe  # cross-compile dist/netcup-dns-updater-linux-x64 (bun-linux-x64/glibc)
 bun test         # 40 unit/integration tests, fetch stubbed — no network
 bun x tsc --noEmit   # typecheck (tsconfig.json, "types": ["bun"])
 bun x biome check    # lint + format (biome.json); use `--write` to apply fixes
@@ -25,7 +26,8 @@ PORT=3000                               # default 3000
 BIND_HOST=0.0.0.0                       # bind address (default 0.0.0.0)
 ```
 - `.env` is auto-loaded by Bun at process start (no dotenv import anymore).
-  Copy `example.env` to `.env`.
+  Copy `example.env` to `.env`. Compiled single-file executables do the same
+  (Bun's `autoloadDotenv` defaults to true).
 - The old `HOSTNAME` variable was renamed to `BIND_HOST` on purpose: Docker
   (and bash) set `HOSTNAME` automatically to the (container) hostname, which
   was never a valid bind address. There is deliberately **no fallback** to
@@ -93,9 +95,21 @@ bun test          # unit/integration tests; fetch stubbed via test_helpers.ts (l
 bun run start &   # needs .env with ALLOWED_IP=127.0.0.1 for local curl
 curl "http://127.0.0.1:3000/update?ip=1.2.3.4&domain=example.com"   # 403 = allowlist mismatch, 400 = missing params, 404 = bad path, 500 = NetCup call failed
 ```
-`docker compose up` uses `Dockerfile` (oven/bun:1-slim, `USER bun`,
-`bun install --frozen-lockfile --production`, `restart: unless-stopped`) and
-passes env from the host shell / `.env` via compose interpolation.
+`docker compose up` uses `Dockerfile` — multi-stage: `oven/bun:1-slim` builds a
+single-file executable (`bun build --compile --format=esm --minify --sourcemap
+--bytecode --target=bun-linux-<arch>-musl`, arch from `TARGETARCH`), final
+stage is `alpine:3.21` running it as uid 10001. No `node_modules` or Bun in
+the image. Compose passes only `NETCUP_*` + `ALLOWED_IP` via interpolation
+from the host `.env`; `PORT`/`BIND_HOST` are deliberately not set — code
+defaults (3000/0.0.0.0) match the fixed `3000:3000` port mapping.
+- SFE build gotchas (verified): `--bytecode` + top-level `await` fails with
+  `"await" can only be used inside an "async" function` unless `--format=esm`
+  is passed. The musl build dynamically links `/lib/ld-musl-x86_64.so.1` —
+  fine on Alpine, wrong for glibc hosts. `bun run build:sfe` therefore targets
+  plain `bun-linux-x64` (glibc) so the binary can be scp'd onto a normal
+  Debian/Ubuntu server and run directly (see README). `import.meta.main` is
+  true inside the compiled binary, `.env` autoload applies there too — the SFE
+  behaves exactly like `bun run main.ts`.
 
 ## Fritzbox
 Internet → Freigaben → DynDns, URL
