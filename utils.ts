@@ -33,44 +33,47 @@ export async function updateNetcupDns(
     return false;
   }
 
-  // infoDnsRecords
-  const dnsrecords = await infoDnsRecord(
-    customerNumber,
-    apiKey,
-    apiSessionId,
-    domain,
-  );
-  if (!dnsrecords) {
-    console.error("Failed to get DNS Records");
-    return false;
-  }
+  try {
+    // infoDnsRecords
+    const dnsrecords = await infoDnsRecord(
+      customerNumber,
+      apiKey,
+      apiSessionId,
+      domain,
+    );
+    if (!dnsrecords) {
+      console.error("Failed to get DNS Records");
+      return false;
+    }
 
-  // updateIpInDnsRecord
-  const dnsRecord = updateIpInDnsRecord(dnsrecords, newIp);
-  if (!dnsRecord) {
-    console.error("Failed to update DNS Record");
-    return false;
-  }
+    // updateIpInDnsRecord
+    const dnsRecord = updateIpInDnsRecord(dnsrecords, newIp);
+    if (!dnsRecord) {
+      console.error("Failed to update DNS Record");
+      return false;
+    }
 
-  // updateDnsRecord
-  const res = await updateDnsRecord(
-    customerNumber,
-    apiKey,
-    apiSessionId,
-    domain,
-    dnsRecord,
-  );
-  if (!res) {
-    console.error("Failed to update DNS Record");
-    return false;
-  }
+    // updateDnsRecord
+    const res = await updateDnsRecord(
+      customerNumber,
+      apiKey,
+      apiSessionId,
+      domain,
+      dnsRecord,
+    );
+    if (!res) {
+      console.error("Failed to update DNS Record");
+      return false;
+    }
 
-  // logout
-  if (!await logout(customerNumber, apiKey, apiSessionId)) {
-    console.error("Failed to logout");
-    return false;
+    return true;
+  } finally {
+    // Always close the session. A failed logout is best-effort cleanup
+    // and must not turn an applied update into a failure.
+    if (!await logout(customerNumber, apiKey, apiSessionId)) {
+      console.error("Failed to logout");
+    }
   }
-  return true;
 }
 
 export function updateIpInDnsRecord(
