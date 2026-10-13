@@ -1,11 +1,7 @@
 name: netcupDnsUpdater
 services:
   updater:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    stdin_open: true
-    tty: true
+    build: .
     restart: unless-stopped
     ports:
       - 3000:3000
@@ -14,5 +10,3 @@ services:
       - NETCUP_API_PASSWORD=${NETCUP_API_PASSWORD}
       - NETCUP_CUSTOMER_NUMBER=${NETCUP_CUSTOMER_NUMBER}
       - ALLOWED_IP=${ALLOWED_IP}
-      - PORT=${PORT:-3000}
-      - BIND_HOST=${BIND_HOST:-0.0.0.0}
