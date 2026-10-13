@@ -1,6 +1,7 @@
 # NetCupDnsUpdater
 
-simple server to update the netcup dns entry to the current IP of the fritzbox.
+simple server (Bun/TypeScript) to update the netcup dns entry to the current IP
+of the fritzbox.
 
 fill in the dyndns settings in fritzbox (Internet ->
 Freigaben -> DynDns) with
@@ -10,5 +11,11 @@ Freigaben -> DynDns) with
 
 ## Development
 
-run the tests with `deno task test` (fetch is stubbed, no network access or
-`.env` needed).
+copy `example.env` to `.env` (Bun loads it automatically), then
+
+```bash
+bun install
+bun run dev     # watch mode
+bun test        # fetch is stubbed, no network access or .env needed
+bun run check   # type check (tsc --noEmit)
+```

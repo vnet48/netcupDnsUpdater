@@ -1,17 +1,44 @@
-import { Dnsrecord } from "./interfaces.ts";
+import type { Dnsrecord } from "./interfaces.ts";
 import { infoDnsRecord, login, logout, updateDnsRecord } from "./netcup_api.ts";
 
-function assertIsNetAddr(addr: Deno.Addr): asserts addr is Deno.NetAddr {
-  if (!["tcp", "udp"].includes(addr.transport)) {
-    throw new Error("Not a network address");
-  }
+/** Remote address of a request, as Bun's `server.requestIP()` reports it. */
+export interface NetAddr {
+  address: string;
+  family: string;
+  port: number;
 }
 
+/**
+ * Minimal view of the `Bun.serve` server object the handler needs; tests can
+ * pass a fake with the same shape.
+ */
+export interface ConnInfo {
+  requestIP(request: Request): NetAddr | null | undefined;
+}
+
+/**
+ * Returns the peer address of the connection that carried `request`.
+ *
+ * A dual-stack socket reports IPv4 peers as `::ffff:<ip>`; the prefix is
+ * stripped so the plain dotted-quad form reaches the allowlist comparison.
+ */
 export function getRemoteAddress(
-  connInfo: Deno.ServeHandlerInfo,
-): Deno.NetAddr {
-  assertIsNetAddr(connInfo.remoteAddr);
-  return connInfo.remoteAddr;
+  connInfo: ConnInfo,
+  request: Request,
+): NetAddr {
+  const remoteAddr = connInfo.requestIP(request);
+  if (!remoteAddr) {
+    throw new Error("No remote address available for this request");
+  }
+
+  const mappedPrefix = "::ffff:";
+  if (remoteAddr.address.startsWith(mappedPrefix)) {
+    return {
+      ...remoteAddr,
+      address: remoteAddr.address.slice(mappedPrefix.length),
+    };
+  }
+  return remoteAddr;
 }
 
 export async function updateNetcupDns(
@@ -22,11 +49,7 @@ export async function updateNetcupDns(
   newIp: string,
 ): Promise<boolean> {
   // login
-  const apiSessionId = await login(
-    customerNumber,
-    apiKey,
-    apiPassword,
-  );
+  const apiSessionId = await login(customerNumber, apiKey, apiPassword);
 
   if (!apiSessionId) {
     console.error("Failed to login");
@@ -70,7 +93,7 @@ export async function updateNetcupDns(
   } finally {
     // Always close the session. A failed logout is best-effort cleanup
     // and must not turn an applied update into a failure.
-    if (!await logout(customerNumber, apiKey, apiSessionId)) {
+    if (!(await logout(customerNumber, apiKey, apiSessionId))) {
       console.error("Failed to logout");
     }
   }
@@ -80,8 +103,8 @@ export function updateIpInDnsRecord(
   dnsrecords: Dnsrecord[],
   newIp: string,
 ): false | Dnsrecord {
-  const dnsrecord = dnsrecords.find((record) =>
-    record.hostname === "@" && record.type === "A"
+  const dnsrecord = dnsrecords.find(
+    (record) => record.hostname === "@" && record.type === "A",
   );
   if (!dnsrecord) {
     console.error("DNS Record not found");

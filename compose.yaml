@@ -1,6 +1,6 @@
 name: netcupDnsUpdater
 services:
-  deno:
+  updater:
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,6 +13,6 @@ services:
       - NETCUP_API_KEY=${NETCUP_API_KEY}
       - NETCUP_API_PASSWORD=${NETCUP_API_PASSWORD}
       - NETCUP_CUSTOMER_NUMBER=${NETCUP_CUSTOMER_NUMBER}
-      - DOMAIN=${DOMAIN}
-      - HOST=${HOST}
       - ALLOWED_IP=${ALLOWED_IP}
+      - PORT=${PORT:-3000}
+      - BIND_HOST=${BIND_HOST:-0.0.0.0}

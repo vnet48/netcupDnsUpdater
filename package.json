@@ -1,0 +1,23 @@
+{
+  "name": "netcup-dns-updater",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun run main.ts",
+    "dev": "bun --watch run main.ts",
+    "test": "bun test",
+    "check": "bun x tsc --noEmit",
+    "lint": "bun x biome lint",
+    "fmt": "bun x biome format",
+    "fmt:write": "bun x biome format --write"
+  },
+  "dependencies": {
+    "@logtape/logtape": "^2.4.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "@types/bun": "^1.4.3",
+    "typescript": "^5.9.0"
+  }
+}

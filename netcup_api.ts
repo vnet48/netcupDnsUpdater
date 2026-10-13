@@ -1,8 +1,10 @@
-import {
+import type {
   Dnsrecord,
   InfoDNSRecordsRequest,
   InfoDNSRecordsResponse,
   LoginRequest,
+  LoginResponse,
+  LogoutResponse,
   UpdateDNSRecordRequest,
   UpdateDnsRecordsResponse,
 } from "./interfaces.ts";
@@ -37,7 +39,7 @@ export async function login(
       return null;
     }
 
-    const respJson = await resp.json();
+    const respJson = (await resp.json()) as LoginResponse;
     if (respJson.statuscode !== 2000) {
       console.error("Failed to login");
       return null;
@@ -75,7 +77,7 @@ export async function logout(
       },
     );
 
-    const respJson = await resp.json();
+    const respJson = (await resp.json()) as LogoutResponse;
 
     if (respJson.statuscode !== 2000) {
       console.error("Failed to logout");
@@ -120,7 +122,7 @@ export async function infoDnsRecord(
       return null;
     }
 
-    const respJson: InfoDNSRecordsResponse = await resp.json();
+    const respJson = (await resp.json()) as InfoDNSRecordsResponse;
 
     if (respJson.statuscode !== 2000) {
       console.error("Failed to get DNS Records");
@@ -170,7 +172,7 @@ export async function updateDnsRecord(
       return false;
     }
 
-    const respJson: UpdateDnsRecordsResponse = await resp.json();
+    const respJson = (await resp.json()) as UpdateDnsRecordsResponse;
 
     if (respJson.statuscode !== 2000) {
       console.error("Failed to update DNS Record");

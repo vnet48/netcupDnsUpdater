@@ -1,10 +1,40 @@
 // Shared helpers for the *_test.ts files. Deliberately NOT named *.test.ts
-// or *_test.ts so `deno test` does not pick it up as a test suite.
-import { stub } from "@std/testing/mock";
+// or *_test.ts so `bun test` does not pick it up as a test suite.
 import type { Dnsrecord } from "./interfaces.ts";
 
 export const NETCUP_ENDPOINT =
   "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON";
+
+/**
+ * Minimal property stub with the same dispose contract as
+ * `@std/testing/mock`'s `stub`, so tests can keep using `using`.
+ */
+export interface Stubbed {
+  restore(): void;
+  [Symbol.dispose](): void;
+}
+
+function stub<O extends object, K extends keyof O>(
+  object: O,
+  key: K,
+  value: O[K],
+): Stubbed {
+  const descriptor = Object.getOwnPropertyDescriptor(object, key);
+  Object.defineProperty(object, key, {
+    value,
+    writable: true,
+    configurable: true,
+    enumerable: descriptor?.enumerable ?? true,
+  });
+  const restore = () => {
+    if (descriptor) {
+      Object.defineProperty(object, key, descriptor);
+    } else {
+      delete object[key];
+    }
+  };
+  return { restore, [Symbol.dispose]: restore };
+}
 
 export interface NetcupCall {
   url: string;
@@ -58,7 +88,7 @@ export function stubNetcupApi(
     };
     calls.push(call);
     return Promise.resolve(respond(call));
-  }) as typeof fetch;
+  }) as unknown as typeof fetch;
   const mock = stub(globalThis, "fetch", fake);
   return {
     calls,
@@ -68,11 +98,8 @@ export function stubNetcupApi(
 
 /** Makes every fetch call fail with a network error. Use with `using`. */
 export function stubFetchRejects(message = "network down") {
-  return stub(
-    globalThis,
-    "fetch",
-    (() => Promise.reject(new Error(message))) as typeof fetch,
-  );
+  return stub(globalThis, "fetch", (() =>
+    Promise.reject(new Error(message))) as unknown as typeof fetch);
 }
 
 /** The API layer reports errors via console.error; keep test output quiet. */
