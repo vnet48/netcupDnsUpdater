@@ -7,7 +7,7 @@ import type {
   LogoutResponse,
   UpdateDNSRecordRequest,
   UpdateDnsRecordsResponse,
-} from "./interfaces.ts";
+} from "./interfaces";
 
 export async function login(
   customernumber: string,

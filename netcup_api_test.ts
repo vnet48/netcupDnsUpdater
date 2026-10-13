@@ -1,13 +1,13 @@
 import { expect, test } from "bun:test";
-import type { Dnsrecord } from "./interfaces.ts";
-import { infoDnsRecord, login, logout, updateDnsRecord } from "./netcup_api.ts";
+import type { Dnsrecord } from "./interfaces";
+import { infoDnsRecord, login, logout, updateDnsRecord } from "./netcup_api";
 import {
   apiResponse,
   NETCUP_ENDPOINT,
   quietConsoleErrors,
   stubFetchRejects,
   stubNetcupApi,
-} from "./test_helpers.ts";
+} from "./test_helpers";
 
 test("login - returns the API session id on success", async () => {
   using api = stubNetcupApi(() =>

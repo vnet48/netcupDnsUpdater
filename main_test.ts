@@ -1,11 +1,7 @@
 import { expect, test } from "bun:test";
-import { createHandler } from "./main.ts";
-import {
-  apiResponse,
-  quietConsoleErrors,
-  stubNetcupApi,
-} from "./test_helpers.ts";
-import type { ConnInfo } from "./utils.ts";
+import { createHandler } from "./main";
+import { apiResponse, quietConsoleErrors, stubNetcupApi } from "./test_helpers";
+import type { ConnInfo } from "./utils";
 
 const BASE_CONFIG = {
   apiKey: "api-key",

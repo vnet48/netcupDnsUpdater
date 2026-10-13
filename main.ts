@@ -1,6 +1,6 @@
 import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
-import type { ConnInfo } from "./utils.ts";
-import { getRemoteAddress, updateNetcupDns } from "./utils.ts";
+import type { ConnInfo } from "./utils";
+import { getRemoteAddress, updateNetcupDns } from "./utils";
 
 export interface UpdaterConfig {
   apiKey: string;

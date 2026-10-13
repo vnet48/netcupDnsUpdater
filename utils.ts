@@ -1,5 +1,5 @@
-import type { Dnsrecord } from "./interfaces.ts";
-import { infoDnsRecord, login, logout, updateDnsRecord } from "./netcup_api.ts";
+import type { Dnsrecord } from "./interfaces";
+import { infoDnsRecord, login, logout, updateDnsRecord } from "./netcup_api";
 
 /** Remote address of a request, as Bun's `server.requestIP()` reports it. */
 export interface NetAddr {

@@ -1,6 +1,6 @@
 // Shared helpers for the *_test.ts files. Deliberately NOT named *.test.ts
 // or *_test.ts so `bun test` does not pick it up as a test suite.
-import type { Dnsrecord } from "./interfaces.ts";
+import type { Dnsrecord } from "./interfaces";
 
 export const NETCUP_ENDPOINT =
   "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON";

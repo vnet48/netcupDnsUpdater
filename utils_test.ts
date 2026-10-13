@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import type { Dnsrecord } from "./interfaces.ts";
+import type { Dnsrecord } from "./interfaces";
 import {
   apexARecord,
   apiResponse,
@@ -9,14 +9,14 @@ import {
   sampleDnsRecords,
   stubFetchRejects,
   stubNetcupApi,
-} from "./test_helpers.ts";
+} from "./test_helpers";
 import {
   type ConnInfo,
   getRemoteAddress,
   type NetAddr,
   updateIpInDnsRecord,
   updateNetcupDns,
-} from "./utils.ts";
+} from "./utils";
 
 function connInfoWith(addr: NetAddr | undefined): ConnInfo {
   return { requestIP: () => addr };
