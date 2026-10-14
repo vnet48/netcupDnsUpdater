@@ -1,6 +1,6 @@
-import { STATUS_CODE, STATUS_TEXT } from "@std/http";
 import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
-import { getRemoteAddress, updateNetcupDns } from "./utils.ts";
+import type { ConnInfo } from "./utils";
+import { getRemoteAddress, updateNetcupDns } from "./utils";
 
 export interface UpdaterConfig {
   apiKey: string;
@@ -17,19 +17,16 @@ export function createHandler(config: UpdaterConfig) {
 
   return async function handler(
     req: Request,
-    info: Deno.ServeHandlerInfo,
+    server: ConnInfo,
   ): Promise<Response> {
     const url = new URL(req.url);
-    const { hostname } = getRemoteAddress(info);
+    const { address: hostname } = getRemoteAddress(server, req);
 
     logger.info`Request from ${hostname} to ${url.pathname}`;
 
     if (hostname !== config.allowedIp) {
       logger.error`Request from IP: ${hostname} not allowed`;
-      return new Response("Not allowed", {
-        status: STATUS_CODE.Forbidden,
-        statusText: STATUS_TEXT[STATUS_CODE.Forbidden],
-      });
+      return new Response("Not allowed", { status: 403 });
     }
 
     if (url.pathname === "/update") {
@@ -38,10 +35,7 @@ export function createHandler(config: UpdaterConfig) {
 
       if (newIp === "" || domain === "") {
         logger.error`Missing IP or domain`;
-        return new Response("Missing IP or domain", {
-          status: STATUS_CODE.BadRequest,
-          statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
-        });
+        return new Response("Missing IP or domain", { status: 400 });
       }
 
       const updated = await updateDns(
@@ -54,17 +48,11 @@ export function createHandler(config: UpdaterConfig) {
 
       if (!updated) {
         logger.error`Failed to update ${domain} to ${newIp}`;
-        return new Response("Failed to update DNS", {
-          status: STATUS_CODE.InternalServerError,
-          statusText: STATUS_TEXT[STATUS_CODE.InternalServerError],
-        });
+        return new Response("Failed to update DNS", { status: 500 });
       }
 
       logger.info`Updating ${domain} to ${newIp}`;
-      return new Response("Ok", {
-        status: STATUS_CODE.OK,
-        statusText: STATUS_TEXT[STATUS_CODE.OK],
-      });
+      return new Response("Ok", { status: 200 });
     }
 
     logger.error`Not found ${url.pathname}`;
@@ -73,8 +61,6 @@ export function createHandler(config: UpdaterConfig) {
 }
 
 if (import.meta.main) {
-  await import("@std/dotenv/load");
-
   await configure({
     sinks: { console: getConsoleSink() },
     loggers: [
@@ -91,16 +77,14 @@ if (import.meta.main) {
     ],
   });
 
-  Deno.serve(
-    {
-      port: parseInt(Deno.env.get("PORT") || "3000"),
-      hostname: Deno.env.get("HOSTNAME") || "0.0.0.0",
-    },
-    createHandler({
-      apiKey: Deno.env.get("NETCUP_API_KEY") || "",
-      apiPassword: Deno.env.get("NETCUP_API_PASSWORD") || "",
-      customerNumber: Deno.env.get("NETCUP_CUSTOMER_NUMBER") || "",
-      allowedIp: Deno.env.get("ALLOWED_IP") || "",
+  Bun.serve({
+    port: parseInt(Bun.env.PORT || "3000", 10),
+    hostname: Bun.env.BIND_HOST || "0.0.0.0",
+    fetch: createHandler({
+      apiKey: Bun.env.NETCUP_API_KEY || "",
+      apiPassword: Bun.env.NETCUP_API_PASSWORD || "",
+      customerNumber: Bun.env.NETCUP_CUSTOMER_NUMBER || "",
+      allowedIp: Bun.env.ALLOWED_IP || "",
     }),
-  );
+  });
 }
