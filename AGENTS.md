@@ -104,8 +104,12 @@ from the host `.env`; `PORT`/`BIND_HOST` are deliberately not set — code
 defaults (3000/0.0.0.0) match the fixed `3000:3000` port mapping.
 - SFE build gotchas (verified): `--bytecode` + top-level `await` fails with
   `"await" can only be used inside an "async" function` unless `--format=esm`
-  is passed. The musl build dynamically links `/lib/ld-musl-x86_64.so.1` —
-  fine on Alpine, wrong for glibc hosts. `bun run build:sfe` therefore targets
+  is passed. The musl build is **not fully static** — besides
+  `/lib/ld-musl-x86_64.so.1` it dynamically links `libstdc++.so.6`; plain
+  Alpine doesn't ship it, so the Dockerfile runtime stage needs
+  `apk add --no-cache libstdc++ libgcc` (otherwise the container crash-loops
+  with "Error loading shared library libstdc++.so.6" + dozens of
+  `symbol not found` lines). `bun run build:sfe` therefore targets
   plain `bun-linux-x64` (glibc) so the binary can be scp'd onto a normal
   Debian/Ubuntu server and run directly (see README). `import.meta.main` is
   true inside the compiled binary, `.env` autoload applies there too — the SFE

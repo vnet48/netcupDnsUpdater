@@ -30,8 +30,9 @@ docker compose up -d --build
 ```
 
 The image is built as a multi-stage Dockerfile: the app is compiled into a
-single static (musl) executable and runs in a plain Alpine image — no Bun, no
-`node_modules` in the final image.
+single musl executable and runs in an Alpine image — no Bun, no
+`node_modules` in the final image. The musl build still links `libstdc++`
+dynamically, so the runtime stage installs `libstdc++` and `libgcc` via apk.
 
 ### Single-file executable (without Docker)
 

@@ -15,8 +15,15 @@ RUN arch=x64; [ "$TARGETARCH" = "arm64" ] && arch=arm64; \
     --target=bun-linux-$arch-musl main.ts --outfile /out/netcup-dns-updater
 
 # ---- Runtime stage ----
-# musl base, matches the static musl build from the builder stage.
+# musl base, matches the musl build from the builder stage.
 FROM alpine:3.21
+
+# The bun-linux-*-musl build is not fully static: it dynamically links
+# libstdc++ and libgcc, which the bare alpine image does not ship.
+# Without this the container loops on "Error loading shared library
+# libstdc++.so.6 ... symbol not found". (Bun's own release CI smoke-tests
+# its musl binaries on Alpine the same way.)
+RUN apk add --no-cache libstdc++ libgcc
 
 # Prefer not to run as root.
 RUN adduser -D -H -u 10001 app
